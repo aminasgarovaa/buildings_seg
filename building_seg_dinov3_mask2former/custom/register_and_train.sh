@@ -1,0 +1,10 @@
+register_building_semseg(
+    "buildings_train",
+    images_dir="data/buildings/train/images",
+    masks_dir="data/buildings/train/masks",
+)
+register_building_semseg(
+    "buildings_val",
+    images_dir="data/buildings/val/images",
+    masks_dir="data/buildings/val/masks",
+)

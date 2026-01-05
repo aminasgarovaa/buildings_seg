@@ -1,0 +1,61 @@
+_BASE_: "../Mask2Former/configs/ade20k/semantic-segmentation/maskformer2_R50_bs16_160k.yaml"
+
+MODEL:
+  META_ARCHITECTURE: "MaskFormer"
+
+  BACKBONE:
+    NAME: "DinoV3FPNBackbone"
+
+  DINOV3:
+    REPO_DIR: "/home/aminaasgarova/Desktop/dinov33/dinov3"
+    WEIGHTS_PATH: "/home/aminaasgarova/Desktop/dinov33/dinov3/dinov3_vitl16_pretrain_sat493m-eadcf0ff.pth"
+    MODEL_NAME: "dinov3_vitl16"
+    OUT_CHANNELS: 256
+    FREEZE: True
+
+  # SAT-493M mean/std from DINOv3 docs, scaled by 255. :contentReference[oaicite:12]{index=12}
+  PIXEL_MEAN: [109.65, 104.805, 75.48]
+  PIXEL_STD:  [54.315, 39.78, 36.465]
+
+  WEIGHTS: ""
+
+  SEM_SEG_HEAD:
+    NUM_CLASSES: 2
+    IGNORE_VALUE: 255
+    IN_FEATURES: ["res2", "res3", "res4", "res5"]
+
+DATASETS:
+  TRAIN: ("buildings_train",)
+  TEST: ("buildings_val",)
+
+INPUT:
+  FORMAT: "RGB"
+  DATASET_MAPPER_NAME: "mask_former_semantic_npy"
+
+  MIN_SIZE_TRAIN: [512, 640, 768, 896]
+  MIN_SIZE_TRAIN_SAMPLING: "choice"
+  MAX_SIZE_TRAIN: 2048
+
+  MIN_SIZE_TEST: 1024
+  MAX_SIZE_TEST: 2048
+
+  CROP:
+    ENABLED: True
+    TYPE: "absolute"
+    SIZE: (512, 512)
+
+DATALOADER:
+  NUM_WORKERS: 4
+
+SOLVER:
+  IMS_PER_BATCH: 2
+  BASE_LR: 0.0001
+  MAX_ITER: 40000
+  OPTIMIZER: "ADAMW"
+  WEIGHT_DECAY: 0.05
+  BACKBONE_MULTIPLIER: 0.0
+
+TEST:
+  EVAL_PERIOD: 2000
+
+OUTPUT_DIR: "./output_buildings_dinov3_mask2former"
